@@ -111,7 +111,8 @@ class thrashold_histomaker:
                     dataset_name,
                     evalutate_threshold = True,
                     bg_efficiency       = 10,
-                    N_bins              = 250):
+                    N_bins              = 250,
+                    pt_bond = False):
         for i in range(len(batch_files_list)):
             if i%10 == 0:
                 completion_percentage = (i / len(batch_files_list)) * 100
@@ -122,6 +123,33 @@ class thrashold_histomaker:
             ########################
             #    Histo Creation    #
             ########################
+            if pt_bond:
+                if ak.any(tree.TopLowPt.scoreDNN): #lo * serve per fare and senza che awkward si rompa
+                    scores_lowF  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==0) * (tree.TopLowPt.pt < 300)].scoreDNN)
+                    scores_lowT  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==1) * (tree.TopLowPt.pt < 300)].scoreDNN)
+                else:
+                    scores_lowF  = []
+                    scores_lowT  = []
+                if ak.any(tree.TopHighPt.score2):
+                    scores_highF = ak.flatten(tree.TopHighPt[(tree.TopHighPt.truth==0) * (tree.TopHighPt.pt > 300)].score2)
+                    scores_highT = ak.flatten(tree.TopHighPt[(tree.TopHighPt.truth==1) * (tree.TopHighPt.pt > 300)].score2)
+                else:
+                    scores_highF  = []
+                    scores_highT  = []
+            else:
+                if ak.any(tree.TopLowPt.scoreDNN):
+                    scores_lowF  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==0)].scoreDNN)
+                    scores_lowT  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==1)].scoreDNN)
+                else:
+                    scores_lowF  = []
+                    scores_lowT  = []
+                if ak.any(tree.TopHighPt.score2):
+                    scores_highF = ak.flatten(tree.TopHighPt[(tree.TopHighPt.truth==0)].score2)
+                    scores_highT = ak.flatten(tree.TopHighPt[(tree.TopHighPt.truth==1)].score2)
+                else:
+                    scores_highF  = []
+                    scores_highT  = []
+            '''
             if ak.any(tree.TopLowPt.scoreDNN):
                 scores_lowF  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==0)].scoreDNN)
                 scores_lowT  = ak.flatten(tree.TopLowPt[(tree.TopLowPt.truth==1)].scoreDNN)
@@ -134,7 +162,7 @@ class thrashold_histomaker:
             else:
                 scores_highF  = []
                 scores_highT  = []
-
+'''
             for score_lf in scores_lowF:
                 h_lowF.Fill(score_lf)
             for score_lt in scores_lowT:

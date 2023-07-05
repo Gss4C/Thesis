@@ -12,6 +12,10 @@ parser.add_argument("-e", "--efficiency",
                     type     = int,
                     help     = "Input the threshold background percentage: how much background will survive above this threshold",
                     required = True)
+parser.add_argument("-b", "--bondedpt",
+                    type     = bool,
+                    help     = "If true I will make histograms with an extra pt bond: Pt>300 for highpt and Pt<300 for lowpt",
+                    required = True)
 options = parser.parse_args()
 
 ###################
@@ -65,9 +69,12 @@ for cluster in filenames["meta_info"]["cluster_names"]:
                                h_highF = h_highF, 
                                h_highT = h_highT, 
                                dataset_name  = dataset_name,
-                               bg_efficiency = bg_efficiency)
-
-        file = ROOT.TFile("/eos/user/j/jbonetti/Th_outputs/" + root_filename, "RECREATE")
+                               bg_efficiency = bg_efficiency,
+                               pt_bond       = options.bondedpt)
+        if options.bondedpt:
+            file = ROOT.TFile(filenames["meta_info"]["eos_path_bond"] + root_filename, "RECREATE")
+        else:
+            file = ROOT.TFile(filenames["meta_info"]["eos_path"] + root_filename, "RECREATE")
         
         h_highF.Write()
         h_highT.Write()
